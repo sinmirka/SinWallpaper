@@ -1,0 +1,14 @@
+{
+  "title": "sinpaper",
+  "description": "Minimal Linux terminal / neofetch style dashboard wallpaper. Realtime clock, system info, ASCII progress bars, countdown timers, scrolling logs, CRT scanlines.",
+  "tags": ["terminal", "linux", "neofetch", "tty", "minimal", "unix", "dashboard"],
+  "type": "web",
+  "format": "html",
+  "general": {
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "rate": 16
+  },
+  "file": "index.html"
+}
