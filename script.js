@@ -18,7 +18,7 @@ const CONFIG = {
   osName:          'Windows 11 Pro',                          // STATIC
   kernel:          '10.0.26200.0',                            // STATIC
   hostname:        'sinmirka',                                // STATIC
-  terminal:        'Wallpaper Engine',                        // STATIC
+  terminal:        'Windows Terminal',                        // STATIC
   packages:        '(none)',                                  // STATIC
   shellName:       'PowerShell',                              // STATIC
   memTotalGiB:     15.9,                                      // STATIC
@@ -206,9 +206,15 @@ function progressBar(pct, len) {
   const filled = Math.min(Math.round(pct / 100 * len), len);
   let html = '<span class="pb-open">[</span>';
   for (let i = 0; i < len; i++) {
+    // gradient across full bar width (0 to len-1)
     const t = len > 1 ? i / (len - 1) : 0;
-    const ch = i < filled ? '\u2588' : '\u2591';
-    html += `<span style="color:rgb(${Math.round(t*255)},${Math.round((1-t)*255)},60)">${ch}</span>`;
+    if (i < filled) {
+      const r = Math.round(t * 255);
+      const g = Math.round((1 - t) * 255);
+      html += `<span style="color:rgb(${r},${g},60)">\u2588</span>`;
+    } else {
+      html += '<span class="pb-empty">\u2591</span>';
+    }
   }
   html += '<span class="pb-close">]</span>';
   return html;
@@ -220,7 +226,7 @@ function progressBar(pct, len) {
 let buf = [];
 function w(cls, txt) { buf.push({ cls, txt }); }
 
-const SEP = '------------------------------------------------------------';
+const SEP = '------------------------------------------------------------------------------------------------';
 
 function render() {
   buf = [];
@@ -234,21 +240,21 @@ function render() {
 
   // ── ASCII art + system info side by side ──────────────────
   const asciiRows = [
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    '                                  ',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
-    'lllllllllllllll    lllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    '                                    ',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
+    'llllllllllllllll    llllllllllllllll',
   ];
 
   const memPct = CONFIG.memUsedGiB === '--' ? '~%' : `${Math.round(+CONFIG.memUsedGiB / CONFIG.memTotalGiB * 100)}%`;

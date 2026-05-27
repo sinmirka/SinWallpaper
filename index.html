@@ -7,15 +7,22 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div id="terminal">
-  <div id="output"></div>
-  <div id="prompt-line">
-    <span id="prompt-user">sin@sinpaper:~$</span>
-    <span id="cursor">&#9608;</span>
+<div id="container">
+  <div id="terminal">
+    <div id="output"></div>
+    <div id="prompt-line">
+      <span id="prompt-user">sin@sinpaper:~$</span>
+      <span id="cursor">&#9608;</span>
+    </div>
+  </div>
+  <div id="media-panel">
+    <div id="media-output"></div>
   </div>
 </div>
 <div id="scanlines"></div>
 <div id="noise"></div>
+<canvas id="thumb-canvas" style="display:none;"></canvas>
 <script src="script.js"></script>
+<script src="media-player.js"></script>
 </body>
 </html>
