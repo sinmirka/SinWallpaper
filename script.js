@@ -6,33 +6,35 @@
 const output = document.getElementById('output');
 
 /* ══════════════════════════════════════════════════════════════
-   CONFIG  ─  static / fallback data
+   CONFIG  ─  static / fallback data  (browser cannot read these)
    ══════════════════════════════════════════════════════════════ */
 const CONFIG = {
-  cpuModel:    'AMD Ryzen 7 5800X 8-Core Processor',  // STATIC
-  gpuModel:    'NVIDIA GeForce RTX 3060 Ti',           // STATIC
-  kernel:      'Windows NT 10.0.26100',                 // STATIC
-  hostname:    'sinmirka',                              // STATIC
-  theme:       'sinpaper theme',                        // STATIC
-  memTotalGB:  15.8,                                    // STATIC
-  memUsedRatio: 0.42,                                   // STATIC
-  diskTotalGB: 512,                                     // STATIC
-  diskUsedRatio: 0.56,                                  // STATIC
-  barLen: 20,
+  // ── system info ─────────────────────────────────────────────
+  motherboard:     'ASUSTeK COMPUTER INC. PRIME A320M-K',   // STATIC
+  cpuModel:        'AMD Ryzen 7 5800X 8-Core Processor',    // STATIC
+  cpuFreq:         '@ 4.1',                                  // STATIC
+  gpuModel:        'NVIDIA GeForce RTX 3060Ti',              // STATIC
+  gpuMem:          '16GB',                                    // STATIC
+  osName:          'Windows 11 Pro',                          // STATIC
+  kernel:          '10.0.26200.0',                            // STATIC
+  hostname:        'sinmirka',                                // STATIC
+  terminal:        'Wallpaper Engine',                        // STATIC
+  packages:        '(none)',                                  // STATIC
+  shellName:       'PowerShell',                              // STATIC
+  memTotalGiB:     15.9,                                      // STATIC
+  memUsedGiB:      '--',                                      // STATIC (no real API)
+  diskTotalGiB:    446,                                       // STATIC
+  diskUsedGiB:     341,                                       // STATIC
+  barLen:          40,
 };
 
 /* ══════════════════════════════════════════════════════════════
-   COUNTDOWN TIMERS  ─  easy-to-edit, add as many as you want
-   Each entry:
-     label  – display name
-     month  – 0-based (0=Jan, 11=Dec)
-     day    – day of month
-     hour   – hour (0-23)
+   COUNTDOWN TIMERS
    ══════════════════════════════════════════════════════════════ */
 const COUNTDOWNS = [
-  { label: 'Birthday',  month: 5, day: 15, hour: 0  },
-  { label: 'Christmas', month: 11, day: 25, hour: 0  },
-  { label: 'New Year',  month: 0,  day: 1,  hour: 0  },
+  { label: 'Birthday',  month: 5, day: 15, hour: 0 },
+  { label: 'Christmas', month: 11, day: 25, hour: 0 },
+  { label: 'New Year',  month: 0,  day: 1,  hour: 0 },
 ];
 
 function calcCountdown(now, cd) {
@@ -41,17 +43,15 @@ function calcCountdown(now, cd) {
     target = new Date(now.getFullYear() + 1, cd.month, cd.day, cd.hour, 0, 0);
   }
   const diff = target.getTime() - now.getTime();
-  const days  = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-  const mins  = Math.floor((diff % 3600000) / 60000);
-  return { days, hours, mins };
+  return {
+    days:  Math.floor(diff / 86400000),
+    hours: Math.floor((diff % 86400000) / 3600000),
+    mins:  Math.floor((diff % 3600000) / 60000),
+  };
 }
 
 /* ══════════════════════════════════════════════════════════════
-   WORLD CLOCKS  ─  easy-to-edit, add any IANA timezone
-   Each entry:
-     label    – short display name
-     timezone – IANA timezone string (e.g. "Europe/Paris")
+   WORLD CLOCKS
    ══════════════════════════════════════════════════════════════ */
 const CLOCKS = [
   { label: 'SP',       timezone: 'America/Sao_Paulo'     },
@@ -70,10 +70,10 @@ function getRelativeDayName(localNow, tzDate) {
   const t = new Date(tzDate);
   const ld = new Date(l.getFullYear(), l.getMonth(), l.getDate()).getTime();
   const td = new Date(t.getFullYear(), t.getMonth(), t.getDate()).getTime();
-  const diffDays = Math.round((td - ld) / 86400000);
-  if (diffDays === 0)  return 'Today';
-  if (diffDays === 1)  return 'Tomorrow';
-  if (diffDays === -1) return 'Yesterday';
+  const diff = Math.round((td - ld) / 86400000);
+  if (diff === 0)  return 'Today';
+  if (diff === 1)  return 'Tomorrow';
+  if (diff === -1) return 'Yesterday';
   return tzDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
@@ -89,21 +89,12 @@ function fmtTime12(d) {
    ══════════════════════════════════════════════════════════════ */
 function detectBrowser() {
   const ua = navigator.userAgent;
-  let name = 'Unknown';
-  let ver  = '';
-  if (ua.includes('Firefox/')) {
-    name = 'Firefox';
-    ver  = ua.split('Firefox/')[1]?.split('.')[0] || '';
-  } else if (ua.includes('Edg/')) {
-    name = 'Edge';
-    ver  = ua.split('Edg/')[1]?.split('.')[0] || '';
-  } else if (ua.includes('Chrome/')) {
-    name = 'Chrome';
-    ver  = ua.split('Chrome/')[1]?.split('.')[0] || '';
-  } else if (ua.includes('Safari/') && !ua.includes('Chrome/')) {
-    name = 'Safari';
-    const m = ua.match(/Version\/(\d+)/);
-    ver = m ? m[1] : '';
+  let name = 'Unknown', ver = '';
+  if (ua.includes('Firefox/'))        { name='Firefox'; ver=ua.split('Firefox/')[1]?.split('.')[0]||''; }
+  else if (ua.includes('Edg/'))       { name='Edge';    ver=ua.split('Edg/')[1]?.split('.')[0]||''; }
+  else if (ua.includes('Chrome/'))    { name='Chrome';  ver=ua.split('Chrome/')[1]?.split('.')[0]||''; }
+  else if (ua.includes('Safari/') && !ua.includes('Chrome/')) {
+    name='Safari'; const m=ua.match(/Version\/(\d+)/); ver=m?m[1]:'';
   }
   return `${name} ${ver}`;
 }
@@ -116,46 +107,41 @@ let logs = [];
 let lastFpsWarn = 0;
 
 function addLog(type, msg) {
-  const tag = type === 'warn' ? 'WARN' : 'INFO';
-  logs.unshift(`[${tag}] ${msg}`);
+  logs.unshift(`[${type === 'warn' ? 'WARN' : 'INFO'}] ${msg}`);
   if (logs.length > MAX_LOGS) logs.length = MAX_LOGS;
 }
 
-window.addEventListener('resize', () => {
-  addLog('info', `display resized:  ${window.innerWidth}x${window.innerHeight}`);
-});
+window.addEventListener('resize', () => addLog('info', `display resized:  ${window.innerWidth}x${window.innerHeight}`));
 window.addEventListener('online',  () => addLog('info', 'network:  online'));
 window.addEventListener('offline', () => addLog('warn', 'network:  offline'));
-document.addEventListener('visibilitychange', () => {
-  addLog('info', `tab ${document.hidden ? 'hidden' : 'visible'}`);
-});
+document.addEventListener('visibilitychange', () => addLog('info', `tab ${document.hidden ? 'hidden' : 'visible'}`));
 
 if (navigator.getBattery) {
   navigator.getBattery().then(batt => {
-    batt.addEventListener('levelchange', () => {
-      addLog('info', `battery:  ${Math.round(batt.level * 100)}%`);
-    });
-    batt.addEventListener('chargingchange', () => {
-      addLog('info', `battery:  ${batt.charging ? 'charging' : 'discharging'}`);
-    });
+    batt.addEventListener('levelchange', () => addLog('info', `battery:  ${Math.round(batt.level*100)}%`));
+    batt.addEventListener('chargingchange', () => addLog('info', `battery:  ${batt.charging ? 'charging' : 'discharging'}`));
   }).catch(() => {});
 }
 
 if (navigator.connection) {
   navigator.connection.addEventListener('change', () => {
     const c = navigator.connection;
-    addLog('info', `network:  ${c.effectiveType || '?'}  ${c.downlink || '?'}Mbps`);
+    addLog('info', `network:  ${c.effectiveType||'?'}  ${c.downlink||'?'}Mbps`);
   });
 }
 
 /* ══════════════════════════════════════════════════════════════
-   SYSTEM DATA
+   SYSTEM DATA  ─  collect real + static
    ══════════════════════════════════════════════════════════════ */
 function collectData() {
-  const now   = new Date();
-  const boot  = window.performance?.timing?.navigationStart || null;
-  const memPct  = CONFIG.memUsedRatio * 100;
-  const diskPct = CONFIG.diskUsedRatio * 100;
+  const now  = new Date();
+  const boot = window.performance?.timing?.navigationStart || null;
+  const arch = navigator.platform?.includes('64') ? '64 bits'
+             : navigator.platform?.includes('Win') ? '64 bits'
+             : '';
+  const shellVer = navigator.userAgent.match(/Windows NT (\S+)/)?.[1]
+                   ? `v5.1.${navigator.userAgent.match(/Windows NT (\S+)/)[1].replace(/\./g,'')}`
+                   : 'unknown';
 
   return {
     now,
@@ -163,17 +149,16 @@ function collectData() {
     timeStr: fmtTime(now),
     tz:      Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
     locale:  navigator.language || '?',
-    screenRes:  `${screen.width}x${screen.height}`,
-    winSize:    `${window.innerWidth}x${window.innerHeight}`,
-    aspect:     (window.innerWidth / window.innerHeight).toFixed(2),
-    platform:   navigator.platform || '?',
-    browser:    detectBrowser(),
-    cpuCores:   navigator.hardwareConcurrency || '?',
-    deviceMem:  navigator.deviceMemory ? `${navigator.deviceMemory} GiB` : '?',
-    online:     navigator.onLine,
-    uptime:     boot ? fmtUptime((Date.now() - boot) / 1000) : 'N/A',
-    memPct, diskPct,
-    fps: window.__fps || 0,
+    screenRes: `${screen.width}x${screen.height}`,
+    platform:  navigator.platform || '?',
+    browser:   detectBrowser(),
+    cpuCores:  navigator.hardwareConcurrency || '?',
+    deviceMem: navigator.deviceMemory ? `${navigator.deviceMemory} GiB` : '?',
+    online:    navigator.onLine,
+    arch,
+    shellVer,
+    uptime:    boot ? fmtUptimeHuman((Date.now() - boot) / 1000) : 'N/A',
+    fps:       window.__fps || 0,
   };
 }
 
@@ -204,25 +189,29 @@ function pad3(n) { return String(n).padStart(3, ' '); }
 function fmtTime(d) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
+
 function fmtDate(d) {
   const M = 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(' ');
   return `${d.getFullYear()}-${M[d.getMonth()]}-${pad(d.getDate())}`;
 }
-function fmtUptime(s) {
-  const d = Math.floor(s / 86400);
-  const h = Math.floor((s % 86400) / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = Math.floor(s % 60);
-  return `${d}d ${pad(h)}h ${pad(m)}m ${pad(sec)}s`;
+
+function fmtUptimeHuman(s) {
+  const hh = Math.floor(s / 3600);
+  const mm = Math.floor((s % 3600) / 60);
+  const ss = Math.floor(s % 60);
+  return `${hh} hours ${mm} minutes ${ss} seconds`;
 }
 
 function progressBar(pct, len) {
   const filled = Math.min(Math.round(pct / 100 * len), len);
-  const empty  = len - filled;
-  return '<span class="pb-open">[</span>'
-       + '<span class="pb-fill">'  + '\u2588'.repeat(filled) + '</span>'
-       + '<span class="pb-empty">' + '\u2591'.repeat(empty)  + '</span>'
-       + '<span class="pb-close">]</span>';
+  let html = '<span class="pb-open">[</span>';
+  for (let i = 0; i < len; i++) {
+    const t = len > 1 ? i / (len - 1) : 0;
+    const ch = i < filled ? '\u2588' : '\u2591';
+    html += `<span style="color:rgb(${Math.round(t*255)},${Math.round((1-t)*255)},60)">${ch}</span>`;
+  }
+  html += '<span class="pb-close">]</span>';
+  return html;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -232,57 +221,6 @@ let buf = [];
 function w(cls, txt) { buf.push({ cls, txt }); }
 
 const SEP = '------------------------------------------------------------';
-
-const ASCII = [
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  '                                            ',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-  'llllllllllllllllllll    llllllllllllllllllll',
-];
-
-const SYSINFO = [
-  ['OS',         null],
-  ['Host',       CONFIG.hostname],
-  ['Kernel',     CONFIG.kernel],
-  ['Uptime',     null],
-  ['CPU',        CONFIG.cpuModel],
-  ['GPU',        CONFIG.gpuModel],
-  ['CPU Cores',  null],
-  ['Device Mem', null],
-  ['Memory',     null],
-  ['Disk',       null],
-  ['Theme',      CONFIG.theme],
-  ['Terminal',   'Wallpaper Engine'],
-  ['Browser',    null],
-  ['Locale',     null],
-];
-
-function resolveSys(sys, label) {
-  switch (label) {
-    case 'OS':         return sys.platform;
-    case 'Uptime':     return sys.uptime;
-    case 'CPU Cores':  return `${sys.cpuCores}`;
-    case 'Device Mem': return sys.deviceMem;
-    case 'Memory':     return `${(CONFIG.memTotalGB * CONFIG.memUsedRatio).toFixed(1)}G / ${CONFIG.memTotalGB}G (${Math.round(sys.memPct)}%)`;
-    case 'Disk':       return `${(CONFIG.diskTotalGB * CONFIG.diskUsedRatio).toFixed(0)}G / ${CONFIG.diskTotalGB}G (${Math.round(sys.diskPct)}%)`;
-    case 'Browser':    return sys.browser;
-    case 'Locale':     return sys.locale;
-    default:           return null;
-  }
-}
 
 function render() {
   buf = [];
@@ -294,35 +232,66 @@ function render() {
   w('divider', SEP);
   w('line', '');
 
-  // ── ASCII + system info side by side ──────────────────────
-  const infoPad = 32;
-  const labelW = 11;
+  // ── ASCII art + system info side by side ──────────────────
+  const asciiRows = [
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    '                                  ',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+    'lllllllllllllll    lllllllllllllll',
+  ];
 
-  const infoLines = SYSINFO.map(([label]) => {
-    const val = resolveSys(sys, label);
-    return `<span class="label">${label.padEnd(labelW)}</span> ${val}`;
-  });
+  const memPct = CONFIG.memUsedGiB === '--' ? '~%' : `${Math.round(+CONFIG.memUsedGiB / CONFIG.memTotalGiB * 100)}%`;
+  const labelW = 14;
+  const fmt = (label, val) => `<span class="label">${label.padEnd(labelW)}</span>${val}`;
+  const infoRows = [
+    '  sin@sinmirka',
+    '',
+    fmt('OS:',        `${CONFIG.osName} [${sys.arch}]`),
+    fmt('Host:',      CONFIG.hostname),
+    fmt('Kernel:',    CONFIG.kernel),
+    fmt('Motherboard:', CONFIG.motherboard),
+    fmt('Uptime:',    sys.uptime),
+    fmt('Packages:',  CONFIG.packages),
+    fmt('Shell:',     `${CONFIG.shellName} ${sys.shellVer}`),
+    fmt('Resolution:', sys.screenRes),
+    fmt('Terminal:',  CONFIG.terminal),
+    fmt('CPU:',       `${CONFIG.cpuModel} ${CONFIG.cpuFreq}`),
+    fmt('GPU:',       `${CONFIG.gpuModel} ${CONFIG.gpuMem}`),
+    fmt('Memory:',    `${CONFIG.memUsedGiB} / ${CONFIG.memTotalGiB} GiB (${memPct})`),
+    fmt('Disk:',      `${CONFIG.diskUsedGiB} GiB / ${CONFIG.diskTotalGiB} GiB (${Math.round(CONFIG.diskUsedGiB / CONFIG.diskTotalGiB * 100)}%)`),
+  ];
 
-  const maxRows = Math.max(ASCII.length, infoLines.length);
-
+  const asciiW = asciiRows[0].length;
+  const maxRows = Math.max(asciiRows.length, infoRows.length);
   for (let i = 0; i < maxRows; i++) {
-    const asciiRow = i < ASCII.length ? ASCII[i] : '';
-    const infoRow  = i < infoLines.length ? infoLines[i] : '';
-    const gap = asciiRow.length < infoPad ? ' '.repeat(infoPad - asciiRow.length) : '  ';
-    w('line', `<span class="ascii-blue">${asciiRow}</span>${gap}${infoRow}`);
+    const left  = i < asciiRows.length ? asciiRows[i] : ' '.repeat(asciiW);
+    const right = i < infoRows.length  ? infoRows[i]  : '';
+    const gap = ' '.repeat(6);
+    w('line', `<span class="ascii-blue">${left}</span>${gap}${right}`);
   }
 
   // ── sections ──────────────────────────────────────────────
   const cpuPct = 23 + Math.sin(Date.now() / 5000) * 10;
-  const memPct = sys.memPct;
-  const diskPct = sys.diskPct;
+  const diskPct = CONFIG.diskUsedGiB / CONFIG.diskTotalGiB * 100;
+  const memPct2  = CONFIG.memUsedGiB === '--' ? 50 : +CONFIG.memUsedGiB / CONFIG.memTotalGiB * 100;
 
   // SYSTEM LOAD
   w('line', '');
   w('divider', SEP);
   w('line-dim', '  SYSTEM LOAD');
   w('line', `    CPU   ${progressBar(cpuPct, CONFIG.barLen)}  ${pad3(Math.round(cpuPct))}%`);
-  w('line', `    MEM   ${progressBar(memPct, CONFIG.barLen)}  ${pad3(Math.round(memPct))}%`);
+  w('line', `    MEM   ${progressBar(memPct2, CONFIG.barLen)}  ${pad3(Math.round(memPct2))}%`);
   w('line', `    DISK  ${progressBar(diskPct, CONFIG.barLen)}  ${pad3(Math.round(diskPct))}%`);
 
   // COUNTDOWN TIMERS
@@ -331,9 +300,7 @@ function render() {
   w('line-dim', '  COUNTDOWN TIMERS');
   for (const cd of COUNTDOWNS) {
     const { days, hours, mins } = calcCountdown(sys.now, cd);
-    const label = cd.label.padEnd(12);
-    const remaining = `${days}d ${pad(hours)}h ${pad(mins)}m`;
-    w('line', `    <span class="label">${label}</span>  <span class="timer-val">${remaining.padStart(14)}</span> remaining`);
+    w('line', `    <span class="label">${cd.label.padEnd(12)}</span>  <span class="timer-val">${(`${days}d ${pad(hours)}h ${pad(mins)}m`).padStart(14)}</span> remaining`);
   }
 
   // WORLD CLOCKS
@@ -341,38 +308,29 @@ function render() {
   w('divider', SEP);
   w('line-dim', '  WORLD CLOCKS');
   for (const ck of CLOCKS) {
-    // Build tz date parts via Intl
     const parts = new Intl.DateTimeFormat('en-US', {
       timeZone: ck.timezone,
       year: 'numeric', month: 'numeric', day: 'numeric',
-      hour: 'numeric', minute: 'numeric', second: 'numeric',
-      hour12: false,
+      hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false,
     }).formatToParts(sys.now);
-    const getP = (type) => parseInt(parts.find(p => p.type === type)?.value || '0', 10);
-    const tzDate = new Date(getP('year'), getP('month') - 1, getP('day'), getP('hour'), getP('minute'), getP('second'));
-    const pct = getDayProgress(tzDate);
-    const dayName = getRelativeDayName(sys.now, tzDate);
-    const t24 = fmtTime(tzDate);
-    const t12 = fmtTime12(tzDate);
-    const bar = progressBar(pct, CONFIG.barLen);
-    const label = ck.label.padEnd(10);
-    w('line', `    <span class="clock-label">${label}</span>` +
-      ` <span class="clock-day">${dayName.padStart(9)}</span>` +
-      `  <span class="clock-time24">${t24}</span>` +
-      `  <span class="clock-time12">${t12.padStart(13)}</span>` +
-      `  ${bar}  <span class="clock-pct">${pad3(Math.round(pct))}%</span>`);
+    const gp = (t) => parseInt(parts.find(p=>p.type===t)?.value||'0',10);
+    const tzD = new Date(gp('year'), gp('month')-1, gp('day'), gp('hour'), gp('minute'), gp('second'));
+    const pct = getDayProgress(tzD);
+    w('line', `    <span class="clock-label">${ck.label.padEnd(10)}</span>` +
+      ` <span class="clock-day">${getRelativeDayName(sys.now,tzD).padStart(9)}</span>` +
+      `  <span class="clock-time24">${fmtTime(tzD)}</span>` +
+      `  <span class="clock-time12">${fmtTime12(tzD).padStart(13)}</span>` +
+      `  ${progressBar(pct, CONFIG.barLen)}  <span class="clock-pct">${pad3(Math.round(pct))}%</span>`);
   }
 
   // DISPLAY
   w('line', '');
   w('divider', SEP);
   w('line-dim', '  DISPLAY');
-  w('line', `    Resolution  ${sys.screenRes}`);
-  w('line', `    Window      ${sys.winSize}  (${sys.aspect})`);
   w('line', `    FPS         ${sys.fps}`);
   w('line', `    Online      ${sys.online ? 'yes' : 'no'}`);
 
-  // EVENTS / LOGS
+  // EVENTS
   w('line', '');
   w('divider', SEP);
   w('line-dim', '  EVENTS');
@@ -386,9 +344,7 @@ function render() {
 
   // ── build DOM ──────────────────────────────────────────────
   let html = '';
-  for (const l of buf) {
-    html += `<div class="${l.cls}">${l.txt}</div>`;
-  }
+  for (const l of buf) html += `<div class="${l.cls}">${l.txt}</div>`;
   output.innerHTML = html;
 }
 
