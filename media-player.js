@@ -1,186 +1,161 @@
-/* ══════════════════════════════════════════════════════════════
-   sinpaper  —  Media Player (Wallpaper Engine Media API)
-   ──────────────────────────────────────────────────────────────
-   Requires:  Wallpaper Engine with Media Integration enabled
-   API:       wallpaperRegisterMediaPropertiesListener
-              wallpaperRegisterMediaPlaybackListener
-              wallpaperRegisterMediaThumbnailListener
-   ══════════════════════════════════════════════════════════════ */
+/* sinpaper -- Media Player */
 
-const mediaOut = document.getElementById('media-output');
-const thumbCanvas = document.getElementById('thumb-canvas');
+var mediaOut = document.getElementById('media-output');
+var thumbCanvas = document.getElementById('thumb-canvas');
 
-/* ── state ─────────────────────────────────────────────────── */
-const state = {
+var mediaState = {
   title:    '',
   artist:   '',
   album:    '',
   duration: 0,
   position: 0,
   playing:  false,
-  thumbnail: null,
-  colors:   { primary: '#fff', text: '#fff', highContrast: '#fff' },
   thumbAscii: '',
-  dirtyThumb: true,
+  haveThumb: false
 };
 
-/* ── ASCII char set (dark → light) ─────────────────────────── */
-const ASCII_CHARS = '@%#*+=-:. ';
-
-function fmtTime(sec) {
-  if (!sec || sec <= 0) return '00:00';
-  const m = Math.floor(sec / 60);
-  const s = Math.floor(sec % 60);
-  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+function fmtTime(s) {
+  if (!s || s <= 0) return '00:00';
+  var m = Math.floor(s / 60);
+  var sec = Math.floor(s % 60);
+  return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
 }
 
-/* ── convert thumbnail → ASCII art ─────────────────────────── */
-function thumbnailToAscii(img, width) {
-  thumbCanvas.width  = width;
-  thumbCanvas.height = Math.round(width); // square
-  const ctx = thumbCanvas.getContext('2d');
+function thumbToAscii(img, w) {
+  thumbCanvas.width = w;
+  thumbCanvas.height = w;
+  var ctx = thumbCanvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(img, 0, 0, width, thumbCanvas.height);
-
-  const data = ctx.getImageData(0, 0, width, thumbCanvas.height).data;
-  let ascii = '';
-  for (let y = 0; y < thumbCanvas.height; y++) {
-    for (let x = 0; x < width; x++) {
-      const i = (y * width + x) * 4;
-      const r = data[i], g = data[i+1], b = data[i+2];
-      const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-      const idx = Math.floor(gray / 256 * ASCII_CHARS.length);
-      ascii += ASCII_CHARS[Math.min(idx, ASCII_CHARS.length - 1)];
+  ctx.drawImage(img, 0, 0, w, w);
+  var data = ctx.getImageData(0, 0, w, w).data;
+  var chars = '@%#*+=-:. ';
+  var out = '';
+  for (var y = 0; y < w; y++) {
+    for (var x = 0; x < w; x++) {
+      var i = (y * w + x) * 4;
+      var gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
+      var idx = Math.floor(gray / 256 * chars.length);
+      out += chars[Math.min(idx, chars.length - 1)];
     }
-    ascii += '\n';
+    if (y < w - 1) out += '\n';
   }
-  return ascii;
+  return out;
 }
 
-/* ── register API listeners ────────────────────────────────── */
+// API listeners
 if (window.wallpaperRegisterMediaPropertiesListener) {
-  window.wallpaperRegisterMediaPropertiesListener((props) => {
-    if (props.title !== undefined)       state.title    = props.title;
-    if (props.artist !== undefined)      state.artist   = props.artist;
-    if (props.album !== undefined)       state.album    = props.album;
-    if (props.duration !== undefined)    state.duration = props.duration;
-    if (props.primaryColor !== undefined)    state.colors.primary    = '#' + props.primaryColor.toString(16).padStart(6,'0');
-    if (props.textColor !== undefined)       state.colors.text       = '#' + props.textColor.toString(16).padStart(6,'0');
-    if (props.highContrastColor !== undefined) state.colors.highContrast = '#' + props.highContrastColor.toString(16).padStart(6,'0');
-    renderMedia();
+  window.wallpaperRegisterMediaPropertiesListener(function(props) {
+    if (props.title !== undefined)    mediaState.title = props.title;
+    if (props.artist !== undefined)   mediaState.artist = props.artist;
+    if (props.album !== undefined)    mediaState.album = props.album;
+    if (props.duration !== undefined) mediaState.duration = props.duration;
+    doRender();
   });
 } else {
-  state.title = 'Wallpaper Engine';
-  state.artist = 'Media API not detected';
+  mediaState.title = 'Wallpaper Engine';
+  mediaState.artist = 'Media API not available';
 }
 
 if (window.wallpaperRegisterMediaPlaybackListener) {
-  window.wallpaperRegisterMediaPlaybackListener((pb) => {
-    if (pb.position !== undefined)  state.position = pb.position;
-    if (pb.state !== undefined) {
-      state.playing = (pb.state === 'playing');
-    }
-    renderMedia();
+  window.wallpaperRegisterMediaPlaybackListener(function(pb) {
+    if (pb.position !== undefined) mediaState.position = pb.position;
+    if (pb.state !== undefined)    mediaState.playing = (pb.state === 'playing');
+    doRender();
   });
 }
 
 if (window.wallpaperRegisterMediaThumbnailListener) {
-  window.wallpaperRegisterMediaThumbnailListener((thumbData) => {
-    const img = new Image();
-    img.onload = () => {
-      state.thumbAscii = thumbnailToAscii(img, 20);
-      state.dirtyThumb = false;
-      renderMedia();
+  window.wallpaperRegisterMediaThumbnailListener(function(thumbData) {
+    var img = new Image();
+    img.onload = function() {
+      mediaState.thumbAscii = thumbToAscii(img, 28);
+      mediaState.haveThumb = true;
+      doRender();
     };
-    img.onerror = () => { state.dirtyThumb = true; };
     img.src = thumbData;
   });
 }
 
-/* ── render ────────────────────────────────────────────────── */
-let mediaBuf = [];
-function m(cls, txt) { mediaBuf.push({ cls, txt }); }
+// render
+function doRender() {
+  var playing = mediaState.playing;
+  var statusColor = playing ? '#8fbc8f' : '#b9a04a';
+  var statusText = playing ? 'PLAYING' : 'PAUSED';
+  var elapsed = fmtTime(mediaState.position);
+  var total = mediaState.duration > 0 ? fmtTime(mediaState.duration) : '--:--';
 
-const MEDIA_SEP = '------------------------------';
+  // progress
+  var pct = 0;
+  if (mediaState.duration > 0 && mediaState.position > 0) {
+    pct = Math.min(100, (mediaState.position / mediaState.duration) * 100);
+  }
+  var barLen = 38;
+  var filled = Math.round(pct / 100 * barLen);
+  var empty = barLen - filled;
 
-function renderMedia() {
-  mediaBuf = [];
-  const nowPlaying = state.playing ? 'PLAYING' : 'PAUSED';
+  var bar = '[';
+  for (var i = 0; i < barLen; i++) {
+    bar += (i < filled) ? '#' : '.';
+  }
+  bar += ']';
+
+  var html = '';
+  var sep = '------------------------------------------------------------------';
 
   // header
-  m('media-dim', MEDIA_SEP);
-  m('media-bright', '  NOW PLAYING');
-  m('media-dim', MEDIA_SEP);
+  html += '<div class="media-dim">' + sep + '</div>';
+  html += '<div class="media-bright">  NOW PLAYING</div>';
+  html += '<div class="media-dim">' + sep + '</div>';
+  html += '<div class="media-line"> </div>';
 
   // status
-  const statusColor = state.playing ? '#8fbc8f' : '#b9a04a';
-  m('media-line', `  <span style="color:${statusColor}">\u25B6 ${nowPlaying}</span>`);
+  html += '<div class="media-line">  <span style="color:' + statusColor + '">> ' + statusText + '</span></div>';
+  html += '<div class="media-line"> </div>';
 
-  // ASCII thumbnail
-  if (state.thumbAscii && !state.dirtyThumb) {
-    m('media-line', '');
-    m('media-pthumb', state.thumbAscii);
-    m('media-line', '');
-  } else if (state.playing) {
-    // placeholders when no thumbnail yet
-    m('media-line', '');
-    const ph = [
-      '  +------------------+',
-      '  |                  |',
-      '  |   <no cover>     |',
-      '  |                  |',
-      '  +------------------+',
-    ];
-    for (const l of ph) m('media-pthumb', l);
-    m('media-line', '');
+  // ASCII cover
+  if (mediaState.haveThumb && mediaState.thumbAscii) {
+    var lines = mediaState.thumbAscii.split('\n');
+    for (var j = 0; j < lines.length; j++) {
+      if (lines[j].length > 0) {
+        html += '<div class="media-pthumb">     ' + lines[j] + '</div>';
+      }
+    }
+  } else if (playing) {
+    html += '<div class="media-pthumb">     +----------------------------+</div>';
+    html += '<div class="media-pthumb">     |                            |</div>';
+    html += '<div class="media-pthumb">     |                            |</div>';
+    html += '<div class="media-pthumb">     |       <no cover>           |</div>';
+    html += '<div class="media-pthumb">     |                            |</div>';
+    html += '<div class="media-pthumb">     |                            |</div>';
+    html += '<div class="media-pthumb">     +----------------------------+</div>';
   }
+  html += '<div class="media-line"> </div>';
 
   // track info
-  const title   = state.title   || 'Unknown Track';
-  const artist  = state.artist  || 'Unknown Artist';
-  const album   = state.album   || '';
-  const elapsed = fmtTime(state.position);
-  const total   = state.duration > 0 ? fmtTime(state.duration) : '--:--';
-
-  // progress bar
-  let pct = 0;
-  if (state.duration > 0 && state.position > 0) {
-    pct = Math.min(100, (state.position / state.duration) * 100);
+  html += '<div class="media-line">  <span class="media-label">Artist         </span><span class="media-value">' + (mediaState.artist || 'Unknown') + '</span></div>';
+  html += '<div class="media-line">  <span class="media-label">Track          </span><span class="media-value">' + (mediaState.title || 'Unknown') + '</span></div>';
+  if (mediaState.album) {
+    html += '<div class="media-line">  <span class="media-label">Album          </span><span class="media-value">' + mediaState.album + '</span></div>';
   }
-  const barLen = 22;
-  const filled = Math.round(pct / 100 * barLen);
-  const empty  = barLen - filled;
+  html += '<div class="media-line">  <span class="media-label">Status         </span><span class="media-value">' + (playing ? 'Playing' : 'Paused') + '</span></div>';
+  html += '<div class="media-line">  <span class="media-label">Position       </span><span class="media-value">' + elapsed + ' / ' + total + '</span></div>';
+  html += '<div class="media-line"> </div>';
 
-  m('media-title', `  ${title}`);
-  if (artist) m('media-artist', `  ${artist}`);
-  if (album)  m('media-sub',    `  \u201C${album}\u201D`);
+  // progress
+  html += '<div class="media-line">  Progress      ' + bar;
+  html += '<div class="media-line"> </div>';
+  html += '<div class="media-dim">' + sep + '</div>';
 
-  m('media-line', '');
-  m('media-status', `  ${elapsed} / ${total}`);
-  const bar = '<span class="pb-open">[</span>'
-    + '<span class="pb-fill">'  + '\u2588'.repeat(filled) + '</span>'
-    + '<span class="pb-empty">' + '\u2591'.repeat(empty)  + '</span>'
-    + '<span class="pb-close">]</span>';
-  m('media-progress', `  ${bar}  ${Math.round(pct)}%`);
-
-  m('media-line', '');
-  m('media-dim', MEDIA_SEP);
-
-  // build DOM
-  let html = '';
-  for (const l of mediaBuf) {
-    html += `<div class="${l.cls}">${l.txt}</div>`;
-  }
   mediaOut.innerHTML = html;
 }
 
-// initial render
-renderMedia();
+// initial
+doRender();
 
-// periodical refresh for elapsed time
-setInterval(() => {
-  if (state.playing) {
-    state.position += 1;
-    renderMedia();
+// tick
+setInterval(function() {
+  if (mediaState.playing) {
+    mediaState.position += 1;
+    doRender();
   }
 }, 1000);

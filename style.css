@@ -45,12 +45,12 @@ body {
 }
 
 #media-panel {
-  width: 320px;
+  width: 640px;
   height: 100%;
-  padding: 22px 20px;
+  padding: 22px 24px;
   display: flex;
   flex-direction: column;
-  border-left: 1px solid #222;
+  align-items: flex-end;
 }
 
 #media-output {
@@ -144,7 +144,7 @@ body::after {
 
 /* ── divider ──────────────────────────────────── */
 .divider {
-  color: #383838;
+  color: #575757;
   user-select: none;
 }
 
@@ -178,12 +178,11 @@ body::after {
 .log-line .log-info  { color: #559; }
 
 /* ── media panel ──────────────────────────────── */
-.media-line     { width: 100%; color: #c0c0c0; font-size: 13px; }
-.media-dim      { color: #686868; font-size: 12px; }
-.media-bright   { color: #e0e0e0; }
-.media-title    { color: #dbb85e; font-size: 13px; }
-.media-sub      { color: #888; font-size: 11px; }
-.media-pthumb   { color: #555; white-space: pre; font-size: 10px; line-height: 1.05; }
-.media-artist   { color: #c0c0c0; font-size: 12px; }
-.media-status   { color: #8ab4c0; font-size: 12px; }
-.media-progress { color: #8fbc8f; font-size: 11px; }
+.media-line      { width: 100%; color: #c0c0c0; font-size: 14px; }
+.media-dim       { color: #575757; font-size: 13px; }
+.media-bright    { color: #e0e0e0; font-size: 14px; }
+.media-label     { color: #ffd15d; }
+.media-value     { color: #c0c0c0; }
+.media-pthumb    { color: #555; white-space: pre; font-size: 12px; line-height: 1.1; }
+.media-status    { color: #8ab4c0; font-size: 13px; }
+.media-progress  { color: #8fbc8f; font-size: 13px; }
