@@ -2,7 +2,7 @@ import asyncio
 import json
 import websockets
 
-from metrics.system import get_sys_info
+from metrics.collector import get_sys_metrics
 
 
 CLIENTS = set()
@@ -26,7 +26,7 @@ async def handler(ws):
         while True:
 
             payload = {
-                "system": get_sys_info()
+                "system": get_sys_metrics()
             }
 
             await ws.send(json.dumps(payload))
