@@ -257,7 +257,8 @@ function render() {
     'llllllllllllllll    llllllllllllllll',
   ];
 
-  const memPct = CONFIG.memUsedGiB === '--' ? '~%' : `${Math.round(+CONFIG.memUsedGiB / CONFIG.memTotalGiB * 100)}%`;
+  const realMem = BACKEND_STATE.system.ram_usage;
+  const memPct = realMem != null ? `${Math.round(realMem)}%` : '~%';
   const labelW = 14;
   const fmt = (label, val) => `<span class="label">${label.padEnd(labelW)}</span>${val}`;
   const infoRows = [
@@ -288,9 +289,9 @@ function render() {
   }
 
   // ── sections ──────────────────────────────────────────────
-  const cpuPct = 23 + Math.sin(Date.now() / 5000) * 10;
-  const diskPct = CONFIG.diskUsedGiB / CONFIG.diskTotalGiB * 100;
-  const memPct2  = CONFIG.memUsedGiB === '--' ? 50 : +CONFIG.memUsedGiB / CONFIG.memTotalGiB * 100;
+  const cpuPct  = BACKEND_STATE.system.cpu_usage ?? 0;
+  const memPct2 = BACKEND_STATE.system.ram_usage ?? 0;
+  const diskPct = BACKEND_STATE.system.disk ?? 0;
 
   // SYSTEM LOAD
   w('line', '');
