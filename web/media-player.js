@@ -14,7 +14,7 @@ var mediaState = {
   haveThumb: false
 };
 
-function fmtTime(s) {
+function fmtDuration(s) {
   if (!s || s <= 0) return '00:00';
   var m = Math.floor(s / 60);
   var sec = Math.floor(s % 60);
@@ -81,8 +81,8 @@ function doRender() {
   var playing = mediaState.playing;
   var statusColor = playing ? '#8fbc8f' : '#b9a04a';
   var statusText = playing ? 'PLAYING' : 'PAUSED';
-  var elapsed = fmtTime(mediaState.position);
-  var total = mediaState.duration > 0 ? fmtTime(mediaState.duration) : '--:--';
+  var elapsed = fmtDuration(mediaState.position);
+  var total = mediaState.duration > 0 ? fmtDuration(mediaState.duration) : '--:--';
 
   // progress
   var pct = 0;
@@ -95,7 +95,7 @@ function doRender() {
 
   var bar = '[';
   for (var i = 0; i < barLen; i++) {
-    bar += (i < filled) ? '#' : '.';
+    bar += (i < filled) ? '=' : '-';
   }
   bar += ']';
 
@@ -112,25 +112,6 @@ function doRender() {
   html += '<div class="media-line">  <span style="color:' + statusColor + '">> ' + statusText + '</span></div>';
   html += '<div class="media-line"> </div>';
 
-  // ASCII cover
-  if (mediaState.haveThumb && mediaState.thumbAscii) {
-    var lines = mediaState.thumbAscii.split('\n');
-    for (var j = 0; j < lines.length; j++) {
-      if (lines[j].length > 0) {
-        html += '<div class="media-pthumb">     ' + lines[j] + '</div>';
-      }
-    }
-  } else if (playing) {
-    html += '<div class="media-pthumb">     +----------------------------+</div>';
-    html += '<div class="media-pthumb">     |                            |</div>';
-    html += '<div class="media-pthumb">     |                            |</div>';
-    html += '<div class="media-pthumb">     |       <no cover>           |</div>';
-    html += '<div class="media-pthumb">     |                            |</div>';
-    html += '<div class="media-pthumb">     |                            |</div>';
-    html += '<div class="media-pthumb">     +----------------------------+</div>';
-  }
-  html += '<div class="media-line"> </div>';
-
   // track info
   html += '<div class="media-line">  <span class="media-label">Artist         </span><span class="media-value">' + (mediaState.artist || 'Unknown') + '</span></div>';
   html += '<div class="media-line">  <span class="media-label">Track          </span><span class="media-value">' + (mediaState.title || 'Unknown') + '</span></div>';
@@ -142,7 +123,18 @@ function doRender() {
   html += '<div class="media-line"> </div>';
 
   // progress
-  html += '<div class="media-line">  Progress      ' + bar;
+  html += '<div class="media-line">  <span class="media-label">Progress       </span>' + bar + '</div>';
+  html += '<div class="media-line"> </div>';
+
+  // ASCII cover
+  if (mediaState.haveThumb && mediaState.thumbAscii) {
+    var lines = mediaState.thumbAscii.split('\n');
+    for (var j = 0; j < lines.length; j++) {
+      if (lines[j].length > 0) {
+        html += '<div class="media-pthumb">  ' + lines[j] + '</div>';
+      }
+    }
+  }
   html += '<div class="media-line"> </div>';
   html += '<div class="media-dim">' + sep + '</div>';
 

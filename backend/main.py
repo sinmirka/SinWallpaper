@@ -3,6 +3,7 @@ import json
 import websockets
 
 from metrics.collector import get_sys_metrics
+from metrics.gpu import get_gpu_metrics
 
 
 CLIENTS = set()
@@ -26,7 +27,8 @@ async def handler(ws):
         while True:
 
             payload = {
-                "system": get_sys_metrics()
+                "system": get_sys_metrics(),
+                "gpu": get_gpu_metrics(),
             }
 
             await ws.send(json.dumps(payload))

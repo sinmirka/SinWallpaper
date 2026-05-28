@@ -211,9 +211,9 @@ function progressBar(pct, len) {
     if (i < filled) {
       const r = Math.round(t * 255);
       const g = Math.round((1 - t) * 255);
-      html += `<span style="color:rgb(${r},${g},60)">\u2588</span>`;
+      html += `<span style="color:rgb(${r},${g},60)">=</span>`;
     } else {
-      html += '<span class="pb-empty">\u2591</span>';
+      html += '<span class="pb-empty">-</span>';
     }
   }
   html += '<span class="pb-close">]</span>';
@@ -226,7 +226,7 @@ function progressBar(pct, len) {
 let buf = [];
 function w(cls, txt) { buf.push({ cls, txt }); }
 
-const SEP = '-------------------------------------------------------------------------------------------------g';
+const SEP = '----------------------------------------------------------------------------------------------------';
 
 function render() {
   buf = [];
@@ -269,14 +269,14 @@ function render() {
     fmt('Kernel:',    CONFIG.kernel),
     fmt('Motherboard:', CONFIG.motherboard),
     fmt('Uptime:',    sys.uptime),
-    fmt('Packages:',  CONFIG.packages),
     fmt('Shell:',     `${CONFIG.shellName} ${sys.shellVer}`),
     fmt('Resolution:', sys.screenRes),
     fmt('Terminal:',  CONFIG.terminal),
     fmt('CPU:',       `${CONFIG.cpuModel} ${CONFIG.cpuFreq}`),
-    fmt('GPU:',       `${CONFIG.gpuModel} ${CONFIG.gpuMem}`),
-    fmt('Memory:',    `${CONFIG.memUsedGiB} / ${CONFIG.memTotalGiB} GiB (${memPct})`),
-    fmt('Disk:',      `${CONFIG.diskUsedGiB} GiB / ${CONFIG.diskTotalGiB} GiB (${Math.round(CONFIG.diskUsedGiB / CONFIG.diskTotalGiB * 100)}%)`),
+    fmt('GPU:',       `${BACKEND_STATE.gpu?.name ?? CONFIG.gpuModel}  ${BACKEND_STATE.gpu?.memory_total_mb ? (BACKEND_STATE.gpu.memory_total_mb / 1024).toFixed(1) + 'GB' : CONFIG.gpuMem}`),
+    fmt('Memory:',    realMem != null ? `${(realMem / 100 * CONFIG.memTotalGiB).toFixed(1)} / ${CONFIG.memTotalGiB} GiB (${memPct})` : `${CONFIG.memUsedGiB} / ${CONFIG.memTotalGiB} GiB (${memPct})`),
+    fmt('Disk:',      BACKEND_STATE.system.disk != null ? `${CONFIG.diskUsedGiB} GiB / ${CONFIG.diskTotalGiB} GiB (${Math.round(BACKEND_STATE.system.disk)}%)` : `${CONFIG.diskUsedGiB} GiB / ${CONFIG.diskTotalGiB} GiB (${Math.round(CONFIG.diskUsedGiB / CONFIG.diskTotalGiB * 100)}%)`),
+    fmt('Websocket:', BACKEND_STATE.connected ? 'Connected' : 'Disconnected'),
   ];
 
   const asciiW = asciiRows[0].length;
@@ -294,12 +294,18 @@ function render() {
   const diskPct = BACKEND_STATE.system.disk ?? 0;
 
   // SYSTEM LOAD
+  const gpuPct  = BACKEND_STATE.gpu?.usage ?? 0;
+  const gpuVram = BACKEND_STATE.gpu?.memory_percent ?? 0;
+  const gpuTemp = BACKEND_STATE.gpu?.temperature ?? '--';
   w('line', '');
   w('divider', SEP);
   w('line-dim', '  SYSTEM LOAD');
   w('line', `    CPU   ${progressBar(cpuPct, CONFIG.barLen)}  ${pad3(Math.round(cpuPct))}%`);
   w('line', `    MEM   ${progressBar(memPct2, CONFIG.barLen)}  ${pad3(Math.round(memPct2))}%`);
   w('line', `    DISK  ${progressBar(diskPct, CONFIG.barLen)}  ${pad3(Math.round(diskPct))}%`);
+  w('line', `    GPU   ${progressBar(gpuPct, CONFIG.barLen)}  ${pad3(Math.round(gpuPct))}%`);
+  w('line', `    VRAM  ${progressBar(gpuVram, CONFIG.barLen)}  ${pad3(Math.round(gpuVram))}%`);
+  w('line', `GPU TEMP  ${typeof gpuTemp === 'number' ? gpuTemp + '\u00B0C' : gpuTemp}`);
 
   // COUNTDOWN TIMERS
   w('line', '');

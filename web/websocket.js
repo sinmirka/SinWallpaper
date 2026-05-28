@@ -25,5 +25,9 @@ socket.addEventListener('message', (event) => {
     BACKEND_STATE.system = data.system;
   }
 
+  if (data.gpu) {
+    BACKEND_STATE.gpu = data.gpu;
+  }
+
   console.log(BACKEND_STATE);
 });
