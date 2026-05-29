@@ -276,7 +276,11 @@ function render() {
     fmt('GPU:',       `${BACKEND_STATE.gpu?.name ?? CONFIG.gpuModel}  ${BACKEND_STATE.gpu?.memory_total_mb ? (BACKEND_STATE.gpu.memory_total_mb / 1024).toFixed(1) + 'GB' : CONFIG.gpuMem}`),
     fmt('Memory:',    realMem != null ? `${(realMem / 100 * CONFIG.memTotalGiB).toFixed(1)} / ${CONFIG.memTotalGiB} GiB (${memPct})` : `${CONFIG.memUsedGiB} / ${CONFIG.memTotalGiB} GiB (${memPct})`),
     fmt('Disk:',      BACKEND_STATE.system.disk != null ? `${CONFIG.diskUsedGiB} GiB / ${CONFIG.diskTotalGiB} GiB (${Math.round(BACKEND_STATE.system.disk)}%)` : `${CONFIG.diskUsedGiB} GiB / ${CONFIG.diskTotalGiB} GiB (${Math.round(CONFIG.diskUsedGiB / CONFIG.diskTotalGiB * 100)}%)`),
-    fmt('Websocket:', BACKEND_STATE.connected ? 'Connected' : 'Disconnected'),
+    fmt('Websocket:', BACKEND_STATE.connected
+      ? 'Connected'
+      : BACKEND_STATE.reconnectTimeLeft > 0
+        ? `Reconnecting in ${BACKEND_STATE.reconnectTimeLeft}s...`
+        : 'Disconnected'),
   ];
 
   const asciiW = asciiRows[0].length;
