@@ -40,5 +40,5 @@ def get_gpu_metrics():
             memory.used / memory.total * 100
         ),
 
-        "temperature": temperature
+        "temperature": f'[{temperature}°С]'
     }
