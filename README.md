@@ -1,14 +1,20 @@
 # SinPaper
 
 <p align="center">
+  🇬🇧 English · <a href="README_RU.md">🇷🇺 Русский</a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Platform-Windows-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Windows">
   <img src="https://img.shields.io/badge/Steam-Wallpaper%20Engine-1B2838?style=for-the-badge&logo=steam&logoColor=white" alt="Wallpaper Engine">
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
 </p>
 
-  ![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)
-  ![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
-  ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="License: MIT">
+  <img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python">
+  <img src="https://img.shields.io/badge/platform-Windows-lightgrey.svg" alt="Platform">
+</p>
 
 **SinPaper** is a dynamic Wallpaper Engine wallpaper that transforms your desktop into a terminal-style real-time system monitoring panel. Inspired by the Linux/neofetch aesthetic.
 
@@ -121,17 +127,17 @@ GPU TEMP  [48°C]
 
 ## Features
 
-- 🖥️ **Real-time system monitoring** — CPU, RAM, disk, GPU usage, temperature, and VRAM
-- 🎨 **Terminal aesthetic** — neofetch/Linux style with ASCII-art logo
-- 📊 **Color-coded progress bars** — gradient load bars for each component
-- 🌍 **World clocks** — clocks in multiple timezones with day progress (default: São Paulo, Paris, Yekaterinburg, Tokyo)
-- ⏰ **Countdown timers** — days remaining until events (birthdays, holidays)
-- 🎵 **Media player** — displays the current track from Wallpaper Engine Media API with ASCII-art album cover
-- 📈 **FPS counter** — shell frame rate monitoring
-- 📋 **Event log** — resize, network, and battery logs
-- 📺 **CRT effects** — scanlines, noise, and vignetting for an authentic terminal look
-- 🔄 **Auto-reconnect** — WebSocket automatically reconnects every 30 seconds on disconnect
-- 🚀 **Bootstrapper** — utility to auto-start the backend on Windows login
+-  **Real-time system monitoring** — CPU, RAM, disk, GPU usage, temperature, and VRAM
+-  **Terminal aesthetic** — neofetch/Linux style with ASCII-art logo
+-  **Color-coded progress bars** — gradient load bars for each component
+-  **World clocks** — clocks in multiple timezones with day progress (default: São Paulo, Paris, Local, Tokyo)
+-  **Countdown timers** — days remaining until events (birthdays, holidays)
+-  **Media player** — displays the current track from Wallpaper Engine Media API with ASCII-art album cover
+-  **FPS counter** — shell frame rate monitoring
+-  **Event log** — resize, network, and battery logs
+-  **CRT effects** — scanlines, noise, and vignetting for an authentic terminal look
+-  **Auto-reconnect** — WebSocket automatically reconnects every 30 seconds on disconnect
+-  **Bootstrapper** — utility to auto-start the backend on Windows login
 
 ---
 
