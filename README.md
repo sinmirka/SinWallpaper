@@ -6,52 +6,56 @@
   <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
 </p>
 
-**SinPaper** — это динамический Wallpaper Engine обои, которые превращают ваш рабочий стол в терминал-стиль панель мониторинга системы в реальном времени. Вдохновлено эстетикой Linux/неофетч.
+  ![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)
+  ![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
+  ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey)
 
-Полноэкранный терминал с логотипом ASCII, цветными прогресс-барами загрузки CPU/GPU/RAM, часами в разных часовых поясах, таймерами обратного отсчета, медиаплеером и эффектами CRT-дисплея — всё это прямо на вашем рабочем столе.
+**SinPaper** is a dynamic Wallpaper Engine wallpaper that transforms your desktop into a terminal-style real-time system monitoring panel. Inspired by the Linux/neofetch aesthetic.
 
----
-
-## Содержание
-
-- [Как это работает](#как-это-работает)
-- [Демонстрация](#демонстрация)
-- [Возможности](#возможности)
-- [Системные требования](#системные-требования)
-- [Установка](#установка)
-  - [Шаг 1: Клонирование репозитория](#шаг-1-клонирование-репозитория)
-  - [Шаг 2: Установка Python зависимостей](#шаг-2-установка-python-зависимостей)
-  - [Шаг 3: Запуск бэкенда](#шаг-3-запуск-бэкенда)
-  - [Шаг 4: Установка обоев в Wallpaper Engine](#шаг-4-установка-обоев-в-wallpaper-engine)
-- [Bootstrapper (автозапуск)](#bootstrapper-автозапуск)
-- [Структура проекта](#структура-проекта)
-- [Архитектура](#архитектура)
-- [Настройка под себя](#настройка-под-себя)
-- [Технологии](#технологии)
-- [Устранение неполадок](#устранение-неполадок)
+A full-screen terminal with an ASCII logo, color-coded CPU/GPU/RAM usage progress bars, world clocks across multiple timezones, countdown timers, a media player, and CRT display effects — all rendered right on your desktop.
 
 ---
 
-## Как это работает
+## Table of Contents
 
-SinPaper состоит из двух частей, которые работают вместе:
+- [How It Works](#how-it-works)
+- [Demo](#demo)
+- [Features](#features)
+- [System Requirements](#system-requirements)
+- [Installation](#installation)
+  - [Step 1: Clone the Repository](#step-1-clone-the-repository)
+  - [Step 2: Install Python Dependencies](#step-2-install-python-dependencies)
+  - [Step 3: Start the Backend](#step-3-start-the-backend)
+  - [Step 4: Install the Wallpaper in Wallpaper Engine](#step-4-install-the-wallpaper-in-wallpaper-engine)
+- [Bootstrapper (Auto-Start)](#bootstrapper-auto-start)
+- [Project Structure](#project-structure)
+- [Architecture](#architecture)
+- [Customization](#customization)
+- [Technologies](#technologies)
+- [Troubleshooting](#troubleshooting)
+
+---
+
+## How It Works
+
+SinPaper consists of two parts that work together:
 
 ```mermaid
 flowchart LR
-    subgraph backend["Python Backend"]
+    subgraph backend["🖥️ Python Backend"]
         direction TB
         cpu["cpu.py<br/><i>psutil</i>"]
         ram["ram.py<br/><i>psutil</i>"]
         disk["disk.py<br/><i>psutil</i>"]
         gpu["gpu.py<br/><i>pynvml</i>"]
-        collector["collector.py"]
+        collector["📊 collector.py"]
         cpu --> collector
         ram --> collector
         disk --> collector
         gpu --> collector
     end
 
-    subgraph frontend["Wallpaper Engine"]
+    subgraph frontend["🎮 Wallpaper Engine"]
         direction TB
         ws["websocket.js<br/><i>ws client</i>"]
         script["script.js<br/><i>renderer</i>"]
@@ -74,17 +78,17 @@ flowchart LR
     style media fill:#24283b,stroke:#bb9af7,color:#c0caf5
 ```
 
-1. **Бэкенд** (Python) — запускается локально и каждую секунду собирает данные о состоянии системы: загрузку CPU, объём используемой RAM, занятое место на диске, загрузку GPU, температуру и объём видеопамяти. Данные отправляются через WebSocket на `ws://localhost:8765`.
+1. **Backend** (Python) — runs locally and collects system state data every second: CPU usage, RAM usage, disk usage, GPU load, temperature, and VRAM. Data is sent via WebSocket to `ws://localhost:8765`.
 
-2. **Фронтенд** (HTML/CSS/JS) — это сам Wallpaper Engine обои, которые подключаются к бэкенду и отображают полученные данные в виде терминального интерфейса с прогресс-барами, часами и другой информацией.
+2. **Frontend** (HTML/CSS/JS) — the Wallpaper Engine wallpaper itself, which connects to the backend and renders the received data as a terminal interface with progress bars, clocks, and other information.
 
-Бэкенд необходим потому, что Wallpaper Engine работает на веб-технологиях (HTML/CSS/JS) и не может напрямую обращаться к аппаратным датчикам. Python-сервер решает эту проблему, предоставляя данные через локальный интерфейс.
+The backend is necessary because Wallpaper Engine runs on web technologies (HTML/CSS/JS) and cannot directly access hardware sensors. The Python server bridges this gap by exposing system metrics over a local interface.
 
 ---
 
-## Демонстрация
+## Demo
 
-Обои выглядят как полноэкранный терминал со следующими секциями:
+The wallpaper renders as a full-screen terminal with the following sections:
 
 ```
 llllllllllllllll    llllllllllllllll        sin@sinmirka
@@ -108,54 +112,54 @@ llllllllllllllll    llllllllllllllll      Websocket:    Connected
     DISK  [=================================-------]   82%
     GPU   [================------------------------]   39%
     VRAM  [==========------------------------------]   24%
-GPU TEMP  [48°С]
+GPU TEMP  [48°C]
 ```
 
-> **Примечание:** Конкретные данные (модель CPU, GPU и т.д.) на скриншоте выше — это пример. У вас будут отображаться реальные данные вашего компьютера.
+> **Note:** The specific data (CPU model, GPU, etc.) shown above is an example. Your actual system data will be displayed.
 
 ---
 
-## Возможности
+## Features
 
--  **Мониторинг системы в реальном времени** — CPU, RAM, диск, GPU загрузка, температура и VRAM
--  **Терминальная эстетика** — стиль неофетч/Linux с ASCII-арт логотипом
--  **Цветные прогресс-бары** — градиентные полосы загрузки для каждого компонента
--  **Мировые часы** — часы в нескольких часовых поясах с прогрессом дня (по умолчанию: Сан-Паулу, Париж, Екатеринбург, Токио)
--  **Таймеры обратного отсчёта** — дни до событий (дни рождения, праздники)
--  **Медиаплеер** — отображает текущий трек из Wallpaper Engine Media API с ASCII-арт обложкой альбома
--  **FPS-счётчик** — мониторинг частоты кадров оболочки
--  **Журнал событий** — логи resize, сети, батареи
--  **Эффекты CRT** — сканлайны, шум, виньетирование для аутентичного терминального вида
--  **Авто-переподключение** — WebSocket автоматически переподключается каждые 30 секунд при обрыве
--  **Bootstrapper** — утилита для автоматического запуска бэкенда при входе в Windows
-
----
-
-## Системные требования
-
-| Компонент | Требование |
-|-----------|-----------|
-| **ОС** | Windows 10/11 |
-| **Python** | 3.10 или выше |
-| **Wallpaper Engine** | Любая актуальная версия (купить в [Steam](https://store.steampowered.com/app/431560/Wallpaper_Engine/)) |
-| **GPU** | NVIDIA GPU (для мониторинга GPU; без NVIDIA GPU функции GPU недоступны, но всё остальное работает) |
+- 🖥️ **Real-time system monitoring** — CPU, RAM, disk, GPU usage, temperature, and VRAM
+- 🎨 **Terminal aesthetic** — neofetch/Linux style with ASCII-art logo
+- 📊 **Color-coded progress bars** — gradient load bars for each component
+- 🌍 **World clocks** — clocks in multiple timezones with day progress (default: São Paulo, Paris, Yekaterinburg, Tokyo)
+- ⏰ **Countdown timers** — days remaining until events (birthdays, holidays)
+- 🎵 **Media player** — displays the current track from Wallpaper Engine Media API with ASCII-art album cover
+- 📈 **FPS counter** — shell frame rate monitoring
+- 📋 **Event log** — resize, network, and battery logs
+- 📺 **CRT effects** — scanlines, noise, and vignetting for an authentic terminal look
+- 🔄 **Auto-reconnect** — WebSocket automatically reconnects every 30 seconds on disconnect
+- 🚀 **Bootstrapper** — utility to auto-start the backend on Windows login
 
 ---
 
-## Установка
+## System Requirements
 
-### Шаг 1: Клонирование репозитория
+| Component | Requirement |
+|-----------|-------------|
+| **OS** | Windows 10/11 |
+| **Python** | 3.10 or higher |
+| **Wallpaper Engine** | Any current version (available on [Steam](https://store.steampowered.com/app/431960/Wallpaper_Engine/)) |
+| **GPU** | NVIDIA GPU (for GPU monitoring; without NVIDIA GPU, GPU features are unavailable, but everything else works fine) |
 
-Откройте терминал (PowerShell, CMD или Git Bash) и выполните:
+---
+
+## Installation
+
+### Step 1: Clone the Repository
+
+Open a terminal (PowerShell, CMD, or Git Bash) and run:
 
 ```bash
 git clone https://github.com/sinmirka/SinWallpaper.git
 cd SinWallpaper
 ```
 
-### Шаг 2: Установка Python зависимостей
+### Step 2: Install Python Dependencies
 
-Создайте виртуальное окружение и установите зависимости:
+Create a virtual environment and install dependencies:
 
 ```bash
 python -m venv .venv
@@ -164,41 +168,41 @@ pip install -r requirements.txt
 ```
 
 <details>
-<summary><b>Что устанавливается?</b></summary>
+<summary><b>What gets installed?</b></summary>
 
-| Пакет | Назначение |
-|-------|-----------|
-| `psutil` | Мониторинг CPU, RAM и диска |
-| `nvidia-ml-py` | Мониторинг NVIDIA GPU через NVML |
-| `websockets` | WebSocket-сервер для связи с обоями |
+| Package | Purpose |
+|---------|---------|
+| `psutil` | CPU, RAM, and disk monitoring |
+| `nvidia-ml-py` | NVIDIA GPU monitoring via NVML |
+| `websockets` | WebSocket server for communicating with the wallpaper |
 
 </details>
 
-### Шаг 3: Запуск бэкенда
+### Step 3: Start the Backend
 
-Убедитесь, что виртуальное окружение активировано, и запустите бэкенд:
+Make sure the virtual environment is activated, then start the backend:
 
 ```bash
 python backend\main.py
 ```
 
-Вы должны увидеть сообщение:
+You should see the message:
 
 ```
 [WS] Running on ws://localhost:8765
 ```
 
-> ⚠️ **Бэкенд должен работать, пока вы используете обои.** Оставьте это окно терминала открытым или используйте [Bootstrapper](#bootstrapper-автозапуск) для автоматического запуска.
+> ⚠️ **The backend must be running while you use the wallpaper.** Keep the terminal window open or use the [Bootstrapper](#bootstrapper-auto-start) for automatic startup.
 
-### Шаг 4: Установка обоев в Wallpaper Engine
+### Step 4: Install the Wallpaper in Wallpaper Engine
 
-1. Откройте **Wallpaper Engine**
-2. Перейдите в **Мои обои** (My Wallpapers)
-3. Нажмите **Создать** (Create) → **Импорт** (Import)
-4. Выберите файл `web\wallpaper.json` из cloned-репозитория
-5. Обои появятся в библиотеке — выберите их как рабочий стол
+1. Open **Wallpaper Engine**
+2. Navigate to **My Wallpapers**
+3. Click **Create** → **Import**
+4. Select the `web\wallpaper.json` file from the cloned repository
+5. The wallpaper will appear in the library — select it as your desktop
 
-Альтернативно, вы можете скопировать папку `web/` в папку с обоями Wallpaper Engine:
+Alternatively, you can copy the `web/` folder into the Wallpaper Engine wallpapers directory:
 
 ```
 %AppData%\WallpaperEngine\projects\myprojects\
@@ -206,65 +210,65 @@ python backend\main.py
 
 ---
 
-## Bootstrapper (автозапуск)
+## Bootstrapper (Auto-Start)
 
-Bootstrapper — это утилита, которая позволяет автоматически запускать бэкенд при входе в Windows, чтобы вам не приходилось делать это вручную каждый раз.
+The Bootstrapper is a utility that automatically starts the backend on Windows login, so you don't have to do it manually every time.
 
-### Запуск
+### Usage
 
 ```bash
 python bootstrapper.py
 ```
 
-> Требуются права администратора (программа запросит их автоматически).
+> Administrator privileges are required (the program will request them automatically).
 
-### Меню
+### Menu
 
 ```
 ===== SinPaper Bootstrapper =====
-1. Enable Startup     — добавить бэкенд в автозапуск (через Планировщик заданий Windows)
-2. Disable Startup    — убрать бэкенд из автозапуска
-3. Exit               — выйти
+1. Enable Startup     — add the backend to startup (via Windows Task Scheduler)
+2. Disable Startup    — remove the backend from startup
+3. Exit               — quit
 ```
 
-### Как это работает
+### How It Works
 
-Bootstrapper использует **Планировщик заданий Windows** (`schtasks`) для создания задачи, которая запускает Python-бэкенд при входе пользователя в систему. Задача использует `pythonw.exe` (без окна консоли), чтобы процесс работал в фоновом режиме.
+The Bootstrapper uses **Windows Task Scheduler** (`schtasks`) to create a task that launches the Python backend when the user logs in. The task uses `pythonw.exe` (no console window) so the process runs in the background.
 
 ---
 
-## Структура проекта
+## Project Structure
 
 ```
 SinWallpaper/
-├── bootstrapper.py           # Утилита автозапуска (Windows Task Scheduler)
-├── requirements.txt          # Python зависимости
+├── bootstrapper.py           # Startup utility (Windows Task Scheduler)
+├── requirements.txt          # Python dependencies
 │
 ├── backend/
-│   ├── main.py               # WebSocket-сервер (localhost:8765)
+│   ├── main.py               # WebSocket server (localhost:8765)
 │   └── metrics/
-│       ├── collector.py      # Агрегатор системных метрик
-│       ├── cpu.py            # Мониторинг загрузки CPU (psutil)
-│       ├── ram.py            # Мониторинг использования RAM (psutil)
-│       ├── disk.py           # Мониторинг использования диска (psutil)
-│       └── gpu.py            # Мониторинг NVIDIA GPU (pynvml)
+│       ├── collector.py      # System metrics aggregator
+│       ├── cpu.py            # CPU load monitoring (psutil)
+│       ├── ram.py            # RAM usage monitoring (psutil)
+│       ├── disk.py           # Disk usage monitoring (psutil)
+│       └── gpu.py            # NVIDIA GPU monitoring (pynvml)
 │
-└── web/                      # Wallpaper Engine обои (фронтенд)
-    ├── wallpaper.json        # Метаданные Wallpaper Engine
-    ├── index.html            # Точка входа HTML
-    ├── style.css             # Стили (CRT-эффекты, терминал)
-    ├── script.js             # Основная логика отображения
-    ├── websocket.js          # WebSocket-клиент с авто-переподключением
-    └── media-player.js       # Интеграция с Media API Wallpaper Engine
+└── web/                      # Wallpaper Engine wallpaper (frontend)
+    ├── wallpaper.json        # Wallpaper Engine metadata
+    ├── index.html            # HTML entry point
+    ├── style.css             # Styles (CRT effects, terminal)
+    ├── script.js             # Main rendering logic
+    ├── websocket.js          # WebSocket client with auto-reconnect
+    └── media-player.js       # Wallpaper Engine Media API integration
 ```
 
 ---
 
-## Архитектура
+## Architecture
 
-### Бэкенд
+### Backend
 
-Бэкенд — это асинхронный WebSocket-сервер на Python. Каждую секунду он собирает метрики и отправляет JSON-платеж подключённым клиентам:
+The backend is an async WebSocket server written in Python. Every second it collects metrics and sends a JSON payload to connected clients:
 
 ```json
 {
@@ -284,53 +288,53 @@ SinWallpaper/
 }
 ```
 
-### Фронтенд
+### Frontend
 
-Фронтенд состоит из трёх JavaScript-модулей:
+The frontend consists of three JavaScript modules:
 
-| Модуль | Роль |
+| Module | Role |
 |--------|------|
-| `websocket.js` | Управляет подключением к бэкенду. Хранит актуальные данные в глобальном объекте `BACKEND_STATE`. Автоматически переподключается при обрыве (30 сек). |
-| `script.js` | Основной цикл отрисовки. Собирает данные из браузера (время, разрешение, FPS) и из `BACKEND_STATE`, формирует HTML терминального интерфейса. Рендеринг каждую секунду через `requestAnimationFrame`. |
-| `media-player.js` | Использует Wallpaper Engine Media API для отображения текущего трека. Конвертирует обложку альбома в ASCII-арт. |
+| `websocket.js` | Manages the backend connection. Stores live data in the global `BACKEND_STATE` object. Auto-reconnects on disconnect (30s). |
+| `script.js` | Main rendering loop. Collects data from the browser (time, resolution, FPS) and from `BACKEND_STATE`, builds the terminal UI HTML. Renders every second via `requestAnimationFrame`. |
+| `media-player.js` | Uses the Wallpaper Engine Media API to display the currently playing track. Converts the album cover to ASCII art. |
 
-### Эффекты
+### Effects
 
-CSS-стили создают атмосферу старого CRT-терминала:
+CSS styles create the atmosphere of an old CRT terminal:
 
-- **Сканлайны** — повторяющийся градиент, имитирующий строки развертки
-- **Шум** — SVG-текстура шума с очень низкой прозрачностью
-- **Виньетка** — радиальный градиент затемнения по краям экрана
-- **Шрифт** — JetBrains Mono (загружается из Google Fonts)
+- **Scanlines** — repeating gradient that simulates scan lines
+- **Noise** — SVG noise texture at very low opacity
+- **Vignette** — radial gradient darkening towards the screen edges
+- **Font** — JetBrains Mono (loaded from Google Fonts)
 
 ---
 
-## Настройка под себя
+## Customization
 
-### Системная информация
+### System Information
 
-Отредактируйте объект `CONFIG` в файле `web/script.js` для отображения данных вашего компьютера:
+Edit the `CONFIG` object in `web/script.js` to display your computer's specs:
 
 ```javascript
 const CONFIG = {
-  motherboard: 'Ваша материнская плата',
-  cpuModel:    'Ваш процессор',
+  motherboard: 'Your Motherboard',
+  cpuModel:    'Your CPU',
   cpuFreq:     '@ 4.1',
-  gpuModel:    'Ваша видеокарта',
+  gpuModel:    'Your GPU',
   gpuMem:      '8GB',
   osName:      'Windows 11 Pro',
   kernel:      '10.0.26200.0',
-  hostname:    'ваше-имя-компьютера',
-  memTotalGiB: 16,    // Общий объём RAM в ГиБ
-  diskTotalGiB: 500,  // Общий объём диска в ГиБ
-  diskUsedGiB:  300,  // Используемое место на диске в ГиБ
-  barLen:       40,   // Длина прогресс-баров
+  hostname:    'your-pc-name',
+  memTotalGiB: 16,    // Total RAM in GiB
+  diskTotalGiB: 500,  // Total disk space in GiB
+  diskUsedGiB:  300,  // Used disk space in GiB
+  barLen:       40,   // Progress bar length
 };
 ```
 
-### Мировые часы
+### World Clocks
 
-Измените список часовых поясов в `web/script.js`:
+Change the list of timezones in `web/script.js`:
 
 ```javascript
 const CLOCKS = [
@@ -340,9 +344,9 @@ const CLOCKS = [
 ];
 ```
 
-### Таймеры обратного отсчёта
+### Countdown Timers
 
-Настройте события в `web/script.js`:
+Configure events in `web/script.js`:
 
 ```javascript
 const COUNTDOWNS = [
@@ -351,45 +355,45 @@ const COUNTDOWNS = [
 ];
 ```
 
-### WebSocket порт
+### WebSocket Port
 
-По умолчанию сервер работает на порту `8765`. Чтобы изменить его:
+The server runs on port `8765` by default. To change it:
 
-1. В `backend/main.py` измените аргумент `8765` в `websockets.serve()`
-2. В `web/websocket.js` измените URL в `new WebSocket('ws://localhost:8765')`
-
----
-
-## Технологии
-
-### Бэкенд
-
-| Технология | Назначение |
-|-----------|-----------|
-| [Python](https://python.org) | Основной язык бэкенда |
-| [asyncio](https://docs.python.org/3/library/asyncio.html) | Асинхронный event loop |
-| [websockets](https://websockets.readthedocs.io/) | WebSocket-сервер |
-| [psutil](https://psutil.readthedocs.io/) | Мониторинг CPU, RAM, диска |
-| [nvidia-ml-py](https://pypi.org/project/nvidia-ml-py/) | Мониторинг NVIDIA GPU через NVML |
-
-### Фронтенд
-
-| Технология | Назначение |
-|-----------|-----------|
-| HTML5 | Структура страницы |
-| CSS3 | CRT-эффекты, терминальные стили |
-| JavaScript (ES6+) | Логика отрисовки, WebSocket, рендеринг |
-| [JetBrains Mono](https://www.jetbrains.com/lp/mono/) | Моноширинный шрифт |
-| [Wallpaper Engine API](https://docs.wallpaperengine.io/) | Интеграция с Wallpaper Engine (медиаплеер) |
+1. In `backend/main.py`, change the `8765` argument in `websockets.serve()`
+2. In `web/websocket.js`, update the URL in `new WebSocket('ws://localhost:8765')`
 
 ---
 
-## Устранение неполадок
+## Technologies
+
+### Backend
+
+| Technology | Purpose |
+|-----------|---------|
+| [Python](https://python.org) | Primary backend language |
+| [asyncio](https://docs.python.org/3/library/asyncio.html) | Async event loop |
+| [websockets](https://websockets.readthedocs.io/) | WebSocket server |
+| [psutil](https://psutil.readthedocs.io/) | CPU, RAM, and disk monitoring |
+| [nvidia-ml-py](https://pypi.org/project/nvidia-ml-py/) | NVIDIA GPU monitoring via NVML |
+
+### Frontend
+
+| Technology | Purpose |
+|-----------|---------|
+| HTML5 | Page structure |
+| CSS3 | CRT effects, terminal styling |
+| JavaScript (ES6+) | Rendering logic, WebSocket, UI |
+| [JetBrains Mono](https://www.jetbrains.com/lp/mono/) | Monospace font |
+| [Wallpaper Engine API](https://docs.wallpaperengine.io/) | Wallpaper Engine integration (media player) |
+
+---
+
+## Troubleshooting
 
 <details>
-<summary><b>Бэкенд не запускается / ошибка "ModuleNotFoundError"</b></summary>
+<summary><b>Backend won't start / "ModuleNotFoundError"</b></summary>
 
-Убедитесь, что вы активировали виртуальное окружение перед запуском:
+Make sure you activated the virtual environment before running:
 
 ```bash
 .venv\Scripts\activate
@@ -400,40 +404,40 @@ python backend\main.py
 </details>
 
 <details>
-<summary><b>GPU-метрики не отображаются</b></summary>
+<summary><b>GPU metrics not showing</b></summary>
 
-GPU-мониторинг доступен только для видеокарт NVIDIA с установленным драйвером NVIDIA. Если у вас AMD или Intel GPU, секция GPU в обоих будет отображать прочерки, но остальные метрики (CPU, RAM, диск) будут работать нормально.
-
-</details>
-
-<details>
-<summary><b>Обои не подключаются к бэкенду</b></summary>
-
-1. Убедитесь, что бэкенд запущен — в терминале должно быть сообщение `[WS] Running on ws://localhost:8765`
-2. Проверьте, что Wallpaper Engine использует Chromium-движок (настройки → общие)
-3. Посмотрите на статус WebSocket в нижней части обоев — должно быть `Connected`
-4. Если статус `Reconnecting in Xs...` — подождите 30 секунд для автоматического переподключения
+GPU monitoring is only available for NVIDIA GPUs with the NVIDIA driver installed. If you have an AMD or Intel GPU, the GPU section in the wallpaper will display dashes, but all other metrics (CPU, RAM, disk) will work normally.
 
 </details>
 
 <details>
-<summary><b>Bootstrapper требует права администратора</b></summary>
+<summary><b>Wallpaper not connecting to the backend</b></summary>
 
-Это нормально — Планировщик заданий Windows требует повышения привилегий. Программа автоматически запросит подтверждение UAC.
+1. Make sure the backend is running — you should see `[WS] Running on ws://localhost:8765` in the terminal
+2. Verify that Wallpaper Engine is using the Chromium engine (Settings → General)
+3. Check the WebSocket status at the bottom of the wallpaper — it should say `Connected`
+4. If the status shows `Reconnecting in Xs...` — wait 30 seconds for automatic reconnection
 
 </details>
 
 <details>
-<summary><b>Обои показывают "Media API not available"</b></summary>
+<summary><b>Bootstrapper requires administrator privileges</b></summary>
 
-Это значит, что Wallpaper Engine Media API недоступен. Убедитесь, что:
-- Музыкальный плеер запущен и воспроизводит музыку
-- Wallpaper Engine имеет доступ к Media API (включено в настройках)
+This is expected — Windows Task Scheduler requires elevated privileges. The program will automatically request UAC confirmation.
+
+</details>
+
+<details>
+<summary><b>Wallpaper shows "Media API not available"</b></summary>
+
+This means the Wallpaper Engine Media API is unavailable. Make sure that:
+- A music player is running and playing music
+- Wallpaper Engine has access to the Media API (enabled in settings)
 
 </details>
 
 ---
 
-## Лицензия
+## License
 
-Этот проект является открытым. См. репозиторий для подробностей.
+This is an open-source project. See the repository for details.
