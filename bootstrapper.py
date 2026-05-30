@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Literal
 import subprocess
 import ctypes
 import sys
@@ -20,7 +21,7 @@ def request_admin_privileges():
         print("Error:", str(e))
         return False
     
-def exit():
+def close_app():
     print("Closing...")
     time.sleep(1)
     sys.exit()
@@ -45,17 +46,28 @@ def create_startup_bat():
         f.write(generate_bat_content())
         print("[OK] Startup bat created")
 
-def task_scheduler_handler(choice):
-    if choice == True:
+def task_scheduler_handler(action: Literal["create", "delete"]):
+    """Creates or deletes task from Task Scheduler."""
+    if action == "create":
         if not SERVICE_ROOT.exists():
             create_startup_bat()
         command = f'schtasks /create /tn "{TASK_NAME}" /tr "{SERVICE_ROOT}" /sc onlogon /f'
-    else:
+    elif action == "delete":
         command = f'schtasks /delete /tn "{TASK_NAME}" /f'
+    else:
+        raise ValueError(
+            f'Unknown action: {action}'
+        )
 
     try:
         result = subprocess.run(command, shell=True)
-        print(f"[DEBUG] Return code {result.returncode}")
+        if result.returncode == 0:
+            print("[OK] Command executed successfully")
+        else:
+            print(
+                f"[ERROR] Command failed"
+                f"({result.returncode})"
+            )
     except Exception as e:
         print(f"[ERROR] {e}")
 
@@ -64,7 +76,7 @@ def install_startup():
     try:
         create_startup_bat()
         try:
-            task_scheduler_handler(choice=True)
+            task_scheduler_handler("create")
             print('[OK] Added startup task on logon')
         except Exception as e:
             print(f"[ERROR] {e}")
@@ -73,7 +85,7 @@ def install_startup():
 
 def uninstall_startup():
     try:
-        task_scheduler_handler(choice=False)
+        task_scheduler_handler("delete")
         print("[OK] Removed startup task on logon")
     except Exception as e:
         print(f"[ERROR] {e}")
@@ -109,7 +121,7 @@ def main():
             case "2": # Disable Startup
                 uninstall_startup()
             case "3": # Exit
-                exit()
+                close_app()
             case "":
                 pass
             case _:
