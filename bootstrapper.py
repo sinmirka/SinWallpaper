@@ -19,14 +19,20 @@ def request_admin_privileges():
     except Exception as e:
         print("Error:", str(e))
         return False
+    
+def exit():
+    print("Closing...")
+    time.sleep(1)
+    sys.exit()
 
 
 ROOT = Path(__file__).resolve().parent
 MAIN_ROOT = ROOT / "backend" / 'main.py'
 PYTHON_ROOT = ROOT / ".venv" / "Scripts" / "pythonw.exe"
 SERVICE_ROOT = ROOT / "service" / "startup.bat"
+TASK_NAME = 'SinPaper Startup'
 
-def generate_bat_content() -> str:
+def generate_bat_content() -> str: # .bat file that launches the script
     return f"""@echo off
 
 cd /d {ROOT}
@@ -39,28 +45,41 @@ def create_startup_bat():
         f.write(generate_bat_content())
         print("[OK] Startup bat created")
 
-def add_bat_to_ts(): #ts is task scheduler, not "this shit" lol...
-    if not SERVICE_ROOT.exists():
-        create_startup_bat()
-    command = f'schtasks /create /tn "SinPaper Startup" /tr "{SERVICE_ROOT}" /sc onlogon /f'
-    print(f"[DEBUG] Command: {command}")
+def task_scheduler_handler(choice):
+    if choice == True:
+        if not SERVICE_ROOT.exists():
+            create_startup_bat()
+        command = f'schtasks /create /tn "{TASK_NAME}" /tr "{SERVICE_ROOT}" /sc onlogon /f'
+    else:
+        command = f'schtasks /delete /tn "{TASK_NAME}" /f'
+
     try:
         result = subprocess.run(command, shell=True)
         print(f"[DEBUG] Return code {result.returncode}")
     except Exception as e:
         print(f"[ERROR] {e}")
 
+
 def install_startup():
     try:
         create_startup_bat()
         try:
-            add_bat_to_ts()
-            print('[OK] Added task to startup on logon')
+            task_scheduler_handler(choice=True)
+            print('[OK] Added startup task on logon')
         except Exception as e:
             print(f"[ERROR] {e}")
     except Exception as e:
         print(f"[ERROR] {e}")
 
+def uninstall_startup():
+    try:
+        task_scheduler_handler(choice=False)
+        print("[OK] Removed startup task on logon")
+    except Exception as e:
+        print(f"[ERROR] {e}")
+
+
+# === Main Menu ===
 def main():
     print(f"[DEBUG] Executable: {sys.executable}")
     print(f"[DEBUG] Args: {sys.argv}")
@@ -85,8 +104,14 @@ def main():
         choice = input("\n> ".strip())
 
         match choice:
-            case "1":
+            case "1": # Enable Startup
                 install_startup()
+            case "2": # Disable Startup
+                uninstall_startup()
+            case "3": # Exit
+                exit()
+            case "":
+                pass
             case _:
                 print("Invalid choice")
 
