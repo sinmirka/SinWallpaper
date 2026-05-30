@@ -30,34 +30,24 @@ def close_app():
 ROOT = Path(__file__).resolve().parent
 MAIN_ROOT = ROOT / "backend" / 'main.py'
 PYTHON_ROOT = ROOT / ".venv" / "Scripts" / "pythonw.exe"
-SERVICE_ROOT = ROOT / "service" / "startup.bat"
 TASK_NAME = 'SinPaper Startup'
-
-def generate_bat_content() -> str: # .bat file that launches the script
-    return f"""@echo off
-
-cd /d {ROOT}
-
-"{PYTHON_ROOT}" "{MAIN_ROOT}"
-"""
-
-def create_startup_bat():
-    with open(SERVICE_ROOT, "w") as f:
-        f.write(generate_bat_content())
-        print("[OK] Startup bat created")
 
 def task_scheduler_handler(action: Literal["create", "delete"]):
     """Creates or deletes task from Task Scheduler."""
     if action == "create":
-        if not SERVICE_ROOT.exists():
-            create_startup_bat()
-        command = f'schtasks /create /tn "{TASK_NAME}" /tr "{SERVICE_ROOT}" /sc onlogon /f'
+        command = (
+            f'schtasks /create '
+            f'/tn "{TASK_NAME}" '
+            f'/tr "\\"{PYTHON_ROOT}\\" \\"{MAIN_ROOT}\\"" '
+            f'/sc onlogon /f'
+        )
     elif action == "delete":
         command = f'schtasks /delete /tn "{TASK_NAME}" /f'
     else:
         raise ValueError(
             f'Unknown action: {action}'
         )
+    print(command)
 
     try:
         result = subprocess.run(command, shell=True)
@@ -74,12 +64,8 @@ def task_scheduler_handler(action: Literal["create", "delete"]):
 
 def install_startup():
     try:
-        create_startup_bat()
-        try:
-            task_scheduler_handler("create")
-            print('[OK] Added startup task on logon')
-        except Exception as e:
-            print(f"[ERROR] {e}")
+        task_scheduler_handler("create")
+        print('[OK] Added startup task on logon')
     except Exception as e:
         print(f"[ERROR] {e}")
 
