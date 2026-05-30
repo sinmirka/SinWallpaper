@@ -53,13 +53,17 @@ def add_bat_to_ts(): #ts is task scheduler, not "this shit" lol...
 def install_startup():
     try:
         create_startup_bat()
-        add_bat_to_ts()
+        try:
+            add_bat_to_ts()
+            print('[OK] Added task to startup on logon')
+        except Exception as e:
+            print(f"[ERROR] {e}")
     except Exception as e:
         print(f"[ERROR] {e}")
 
 def main():
-    print(f"Executable: {sys.executable}")
-    print(f"Args: {sys.argv}")
+    print(f"[DEBUG] Executable: {sys.executable}")
+    print(f"[DEBUG] Args: {sys.argv}")
     if not is_admin():
         print("[WARN] Admin priveleges are required for work!")
         success = request_admin_privileges()
@@ -70,9 +74,10 @@ def main():
         time.sleep(2)
         sys.exit()
     else:
-        print("[OK] Running with admin privileges!")
+        print("[OK] Running with admin privileges")
 
-    print("""SinPaper Bootstrapper
+    print("""
+    ===== SinPaper Bootstrapper =====
     1. Enable Startup
     2. Disable Startup
     3. Exit""")
